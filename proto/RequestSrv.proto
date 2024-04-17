@@ -1,0 +1,187 @@
+syntax = "proto3";
+
+package RequestSrv;
+
+option go_package = "./proto;RequestSrv";
+
+service RequestSrv {
+	rpc CreateRequest(CreateRequestRequest) returns (CreateRequestResponse) {}
+	rpc SetAdminForRequest(SetAdminForRequestRequest) returns (SetAdminForRequestResponse) {}
+	rpc SetValidatorsForRequest(SetValidatorsForRequestRequest) returns (SetValidatorsForRequestResponse) {}
+	rpc GetRequestByAdminID(GetRequestByAdminIDRequest) returns (GetRequestByAdminIDResponse) {}
+	rpc GetRequestByRequesterID(GetRequestByRequesterIDRequest) returns (GetRequestByRequesterIDResponse) {}
+	rpc UpdateRequest(UpdateRequestRequest) returns (UpdateRequestResponse) {}
+	rpc SendPotentialValidatorsNotifications(SendPotentialValidatorsNotificationsRequest) returns (SendPotentialValidatorsNotificationsResponse) {}
+
+
+	//get data of request in admin-bot
+	rpc GetCountRequestByAdminID(GetCountRequestByAdminIDRequest ) returns (GetCountRequestByAdminIDResponse) {} // تعداد کل ریکوست ها بی ادمین و ریکوست های ادمین بررسی داره می کنه
+
+
+	rpc GetOrphanRequests(GetOrphanRequestsRequest) returns (GetOrphanRequestsResponse) {}
+	//TODO :: discuss about the profile is it possible to edit profile ? i mean name and ... or is it possible 
+	//update msg and photos ... i don't think so
+
+
+
+	// TODO :: concurrent access to one request 
+	// scenario admin ask for request and get request with same id as another admin request
+
+	rpc AddQuestionAnswer(AddQuestionAnswerRequest) returns (AddQuestionAnswerResponse) {}
+	rpc GetQuestionAnswer(GetQuestionAnswerRequest) returns (GetQuestionAnswerResponse) {}
+}
+
+message GetOrphanRequestsRequest {
+	int32 limit = 1;
+	int32 offset = 2;
+}
+
+message GetOrphanRequestsResponse {
+
+	repeated Request requests = 2;
+}
+
+enum Status {
+	StatusFilling = 0 ; 
+	StatusFilled = 1 ; 
+	StatusUncompleted = 2 ;
+	StatusAdminPending = 3 ;
+	StatusAdminChecking = 4 ; 
+	StatusAdminAsk = 5 ; 
+	StatusRequesterAdminResponse = 6 ; 
+	StatusValidatorsChecking = 7 ; 
+	StatusRequesterValidatorResponse = 8 ; 
+	StatusBlockchainPending = 9 ; 
+	StatusRejected = 10 ;
+	StatusApproved = 11;
+	StatusValidatorQuestionReady = 12;
+}
+
+message StoredMessage {
+	int64 chatID = 1 ; 
+	int32 messageID = 2 ; 
+}
+
+message Request {
+	string ID = 1 ; 
+	int64 requesterID = 2 ; 
+	string fullName = 3 ;
+	int32 Age = 4 ; 
+	double locationLat = 5 ; 
+	double locationLon = 6 ;
+	StoredMessage photo = 7 ; 
+	repeated StoredMessage msgs = 8 ;  
+	repeated QuestionAnswer questionAnswers = 9;
+	Status status = 10 ; 
+}
+
+message CreateRequestRequest {
+	int64 requesterID = 1 ; 
+	string fullName = 2 ;
+	int32 Age = 3 ; 
+	double locationLat = 4 ; 
+	double locationLon = 5 ;
+	StoredMessage photo = 6 ; 
+	repeated StoredMessage msgs = 7 ;  
+	Status status = 8 ; 
+}
+
+message CreateRequestResponse {
+	string msg = 1;
+}
+
+message GetRequestByAdminIDRequest {
+	int64 adminID = 1;
+	int32 limit = 2;
+	int32 offset = 3;
+}
+
+message GetRequestByAdminIDResponse {
+	int32 count = 1;
+	repeated Request requests = 2;
+}
+
+message GetRequestByRequesterIDRequest {
+	int64 requesterID = 1;
+	int32 limit = 2;
+	int32 offset = 3;
+}
+
+message GetRequestByRequesterIDResponse {
+	repeated Request requests =1 ;
+}
+
+message UpdateRequestRequest {
+	string requestID = 1 ; 
+	Status status = 2 ; 
+}
+
+message UpdateRequestResponse {
+	string msg = 1;
+}
+
+message GetRequestsByPersonIDRequest {
+	int64 personID = 1;
+}
+
+message GetRequestsByPersonIDResponse {
+	repeated Request requests = 1 ; 
+}
+
+message SetAdminForRequestRequest {
+	string requestID = 1;
+	int64 adminID = 2;
+}
+
+message SetAdminForRequestResponse {
+	string msg = 1;
+}
+
+message SetValidatorsForRequestRequest {
+	string requestID = 1;
+}
+
+message SetValidatorsForRequestResponse {
+	string msg = 1;
+}
+
+message SendPotentialValidatorsNotificationsRequest {
+	string requestID = 1;
+}
+message SendPotentialValidatorsNotificationsResponse {
+	string msg = 1;
+}
+
+
+
+message GetCountRequestByAdminIDRequest {
+	int64 adminID = 1;
+}
+
+message GetCountRequestByAdminIDResponse {
+	int64 requestCounter = 1;
+	int64 PendingCounter = 2;
+}
+
+message QuestionAnswer {
+	string question = 1;
+	repeated StoredMessage answers = 2;
+}
+
+message AddQuestionAnswerRequest {
+	string requestID = 1;
+	string question = 2;
+	repeated StoredMessage answers = 3;
+}
+
+message AddQuestionAnswerResponse {
+	string msg = 1;
+}
+
+message GetQuestionAnswerRequest {
+	string requestID = 1;
+}
+
+message GetQuestionAnswerResponse {
+	repeated QuestionAnswer result = 1;
+}

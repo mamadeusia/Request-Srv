@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  db-request:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '3001:5432'
+    volumes: 
+      - db-request:/var/lib/postgresql/data
+
+  admin:
+    image: adminer
+    restart: always
+    depends_on: 
+      - db-request
+    ports:
+      - 10001:8080
+
+
+volumes:
+  db-request:
+    driver: local
